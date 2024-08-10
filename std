@@ -1,4 +1,0 @@
-{"level":"info","ts":1720430200.3457372,"caller":"logger/logger.go:33","msg":"hello"}
-{"level":"error","ts":1720430200.34634,"caller":"logger/logger.go:37","msg":"hello","stacktrace":"shop/logger.Error\n\tD:/Code/Golang/shop/logger/logger.go:37\nmain.main\n\tD:/Code/Golang/shop/main.go:13\nruntime.main\n\tC:/Program Files/Go/src/runtime/proc.go:271"}
-{"level":"error","ts":1723296265.5236928,"caller":"logger/logger.go:34","msg":"ErrorTest"}
-{"level":"info","ts":1723296265.5241325,"caller":"logger/logger.go:31","msg":"InfoTest"}
