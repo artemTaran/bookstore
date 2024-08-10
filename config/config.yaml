@@ -1,6 +1,6 @@
-host: "localhost"
-userName: "postgres"
-password: "11339900"
-dbname: "bookshop"
-port: 5432
-sslmode: "disable"
+host: ""
+userName: ""
+password: ""
+dbname: ""
+port:
+sslmode: ""
