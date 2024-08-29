@@ -12,5 +12,6 @@ func main() {
 	logger.Error(fmt.Errorf("ErrorTest"))
 	logger.Info("InfoTest")
 	api.InitRouter()
+	fmt.Println("d")
 
 }
