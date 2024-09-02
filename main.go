@@ -6,8 +6,6 @@ import (
 )
 
 func main() {
-
 	defer logger.Sync()
 	api.InitRouter()
-
 }

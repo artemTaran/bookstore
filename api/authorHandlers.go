@@ -25,7 +25,10 @@ func getAuthors(c *gin.Context) {
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, err)
 	}
-	c.JSON(http.StatusOK, authors)
+
+	authorsResponse := createResponseAuthors(authors)
+
+	c.JSON(http.StatusOK, authorsResponse)
 }
 
 func getAuthorById(c *gin.Context) {
@@ -45,7 +48,9 @@ func getAuthorById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, author)
+	authorResponse := createResponseAuthors([]dataModels.Author{author})
+
+	c.JSON(http.StatusOK, authorResponse)
 }
 
 func addAuthor(c *gin.Context) {
@@ -66,13 +71,12 @@ func addAuthor(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": msg})
+	c.JSON(http.StatusCreated, gin.H{"message": msg})
 }
 
 func searchByFLName(c *gin.Context) {
 	flName := c.Param("flName")
 	authors, err := db.SearchByFLName(flName)
-	fmt.Println(err)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, err)
 		return
@@ -81,5 +85,21 @@ func searchByFLName(c *gin.Context) {
 		errorResponse(c, http.StatusNotFound, fmt.Errorf("record not found"))
 		return
 	}
-	c.JSON(http.StatusOK, authors)
+
+	authorsResponse := createResponseAuthors(authors)
+
+	c.JSON(http.StatusOK, authorsResponse)
+}
+
+func createResponseAuthors(authors []dataModels.Author) []dataModels.AuthorResponse {
+	authorsResponse := make([]dataModels.AuthorResponse, len(authors))
+
+	for i, author := range authors {
+		authorsResponse[i] = dataModels.AuthorResponse{
+			ID:        author.ID,
+			FirstName: author.FirstName,
+			LastName:  author.LastName,
+		}
+	}
+	return authorsResponse
 }
