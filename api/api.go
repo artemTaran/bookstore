@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"os"
+	"shop/db"
 	"shop/logger"
 )
 
@@ -30,6 +31,8 @@ func InitRouter() {
 
 	host, port := getEnvV()
 	address := fmt.Sprintf("%s:%s", host, port)
+
+	db.InitDb()
 
 	err := router.Run(address)
 	if err != nil {

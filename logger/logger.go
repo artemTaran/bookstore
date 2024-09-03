@@ -34,6 +34,10 @@ func Error(err error, fields ...zap.Field) {
 	logger.Error(err.Error(), fields...)
 }
 
+func Fatal(err error, fields ...zap.Field) {
+	logger.Fatal(err.Error(), fields...)
+}
+
 func Sync() {
 	err := logger.Sync()
 	if err != nil {

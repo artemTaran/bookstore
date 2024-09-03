@@ -13,10 +13,10 @@ import (
 
 var db *gorm.DB
 
-func init() {
+func InitDb() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		logger.Error(err)
+		logger.Fatal(err)
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s", cfg.Host, cfg.UserName, cfg.Password, cfg.DBName, cfg.Port, cfg.SSLMode)
