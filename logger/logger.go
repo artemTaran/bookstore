@@ -2,6 +2,7 @@ package logger
 
 import (
 	"go.uber.org/zap"
+	"log"
 )
 
 var (
@@ -16,14 +17,14 @@ func init() {
 		Encoding:          "json",
 		EncoderConfig:     zap.NewProductionEncoderConfig(),
 		OutputPaths:       []string{"stdout"},
-		ErrorOutputPaths:  []string{"stderr"},
+		ErrorOutputPaths:  []string{"stdout"},
 		DisableStacktrace: true,
 	}
 
 	var err error
 	logger, err = config.Build()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
