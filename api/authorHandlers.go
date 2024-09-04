@@ -3,9 +3,11 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 	"shop/dataModels"
 	"shop/db"
+	"shop/logger"
 	"strconv"
 )
 
@@ -14,7 +16,7 @@ func getAuthors(c *gin.Context) {
 
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("invalid quantity"))
+		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity must be number"))
 		return
 	}
 	if quantity <= 0 {
@@ -23,7 +25,9 @@ func getAuthors(c *gin.Context) {
 	}
 	authors, err := db.GetAuthors(quantity)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		errorResponse(c, http.StatusInternalServerError, errors.New("error getting list of authors from database, please try again later"))
+		logger.Error(err)
+		return
 	}
 
 	authorsResponse := createResponseAuthors(authors)
@@ -35,16 +39,16 @@ func getAuthorById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("invalid id"))
+		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id field must be a number"))
 		return
 	}
 	author, err := db.GetAuthorById(id)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("author not found"))
+		errorResponse(c, http.StatusNotFound, fmt.Errorf("author not found"))
 		return
 	}
 	if author.FirstName == "" && author.LastName == "" {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("author not found"))
+		errorResponse(c, http.StatusNotFound, fmt.Errorf("author not found"))
 		return
 	}
 
@@ -57,17 +61,18 @@ func addAuthor(c *gin.Context) {
 	var newAuthor dataModels.Author
 
 	if err := c.ShouldBindJSON(&newAuthor); err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		errorResponse(c, http.StatusBadRequest, errors.New("there is something wrong with the data you sent"))
+		logger.Error(err)
 		return
 	}
-	if newAuthor.FirstName == "" || newAuthor.LastName == "" {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("missing required fields"))
+	if err := newAuthor.Validate(); err != nil {
+		errorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
 	msg, err := db.AddAuthor(newAuthor)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		errorResponse(c, http.StatusInternalServerError, errors.New("There is an error on the server"))
 		return
 	}
 
@@ -78,7 +83,7 @@ func searchByFLName(c *gin.Context) {
 	flName := c.Param("flName")
 	authors, err := db.SearchByFLName(flName)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, err)
+		errorResponse(c, http.StatusInternalServerError, err)
 		return
 	}
 	if len(authors) == 0 {

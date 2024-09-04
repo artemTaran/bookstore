@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"reflect"
 )
 
 type Config struct {
@@ -36,28 +37,21 @@ func LoadConfig() (Config, error) {
 	return config, nil
 }
 
-func checkConfigData(cfg Config) (err error) {
-	errMsg := "Empty values in config file:"
-	if cfg.Port == 0 {
-		errMsg += " port"
+func checkConfigData(cfg Config) error {
+	errMsg := "Please fill in these variables in the config file:"
+
+	val := reflect.ValueOf(cfg)
+	typ := reflect.TypeOf(cfg)
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldName := typ.Field(i).Name
+		if field.IsZero() {
+			errMsg += " " + fieldName
+		}
 	}
-	if cfg.UserName == "" {
-		errMsg += " userName"
+
+	if errMsg != "Please fill in these variables in the config file:" {
+		return errors.New(errMsg)
 	}
-	if cfg.Password == "" {
-		errMsg += " password"
-	}
-	if cfg.DBName == "" {
-		errMsg += " dbname"
-	}
-	if cfg.SSLMode == "" {
-		errMsg += " sslmode"
-	}
-	if cfg.Host == "" {
-		errMsg += " host"
-	}
-	if errMsg != "Empty values in config file:" {
-		err = errors.Errorf(errMsg)
-	}
-	return err
+	return nil
 }

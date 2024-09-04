@@ -27,9 +27,6 @@ func init() {
 	}
 }
 
-func Info(msg string, fields ...zap.Field) {
-	logger.Info(msg, fields...)
-}
 func Error(err error, fields ...zap.Field) {
 	logger.Error(err.Error(), fields...)
 }

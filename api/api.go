@@ -36,7 +36,7 @@ func InitRouter() {
 
 	err := router.Run(address)
 	if err != nil {
-		logger.Error(err)
+		logger.Fatal(err)
 		return
 	}
 }
@@ -45,11 +45,11 @@ func getEnvV() (host, port string) {
 	host = os.Getenv("HTTP_HOST")
 	port = os.Getenv("HTTP_PORT")
 	if host == "" {
-		logger.Error(fmt.Errorf("HTTP_HOST is not set"))
+		logger.Fatal(fmt.Errorf("HTTP_HOST is not set"))
 		return
 	}
 	if port == "" {
-		logger.Error(fmt.Errorf("HTTP_PORT is not set"))
+		logger.Fatal(fmt.Errorf("HTTP_PORT is not set"))
 		return
 	}
 	return host, port
