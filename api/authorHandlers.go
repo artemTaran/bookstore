@@ -12,8 +12,25 @@ import (
 )
 
 func getAuthors(c *gin.Context) {
-	quantityStr := c.Param("quantity")
+	quantityParam := c.Query("quantity")
+	idParam := c.Query("id")
+	fullNameParam := c.Query("fullName")
 
+	if idParam != "" {
+		getAuthorById(c, idParam)
+		return
+	} else if fullNameParam != "" {
+		getByFullName(c, fullNameParam)
+		return
+	}
+
+	getListAuthors(c, quantityParam)
+}
+
+func getListAuthors(c *gin.Context, quantityStr string) {
+	if quantityStr == "" {
+		quantityStr = "10"
+	}
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity must be number"))
@@ -35,8 +52,8 @@ func getAuthors(c *gin.Context) {
 	c.JSON(http.StatusOK, authorsResponse)
 }
 
-func getAuthorById(c *gin.Context) {
-	idStr := c.Param("id")
+func getAuthorById(c *gin.Context, idStr string) {
+
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id field must be a number"))
@@ -79,9 +96,8 @@ func addAuthor(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": msg})
 }
 
-func searchByFLName(c *gin.Context) {
-	flName := c.Param("flName")
-	authors, err := db.SearchByFLName(flName)
+func getByFullName(c *gin.Context, fullName string) {
+	authors, err := db.SearchByFLName(fullName)
 	if err != nil {
 		errorResponse(c, http.StatusInternalServerError, err)
 		return

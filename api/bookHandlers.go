@@ -11,6 +11,22 @@ import (
 	"strconv"
 )
 
+func getBooks(c *gin.Context) {
+	quantityParam := c.Query("quantity")
+	idParam := c.Query("id")
+	titleParam := c.Query("title")
+
+	if idParam != "" {
+		getBookById(c, idParam)
+		return
+	} else if titleParam != "" {
+		getByTitle(c, titleParam)
+		return
+	}
+
+	getListBooks(c, quantityParam)
+}
+
 func addBook(c *gin.Context) {
 	var newBook dataModels.Book
 
@@ -32,9 +48,10 @@ func addBook(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "book added successfully!"})
 }
 
-func getBooks(c *gin.Context) {
-	quantityStr := c.Param("quantity")
-
+func getListBooks(c *gin.Context, quantityStr string) {
+	if quantityStr == "" {
+		quantityStr = "10"
+	}
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity must be number"))
@@ -56,8 +73,7 @@ func getBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, booksResponse)
 }
 
-func getBookById(c *gin.Context) {
-	idStr := c.Param("id")
+func getBookById(c *gin.Context, idStr string) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id field must be a number"))
@@ -78,8 +94,7 @@ func getBookById(c *gin.Context) {
 	c.JSON(http.StatusOK, bookResponse)
 }
 
-func searchByTitle(c *gin.Context) {
-	title := c.Param("title")
+func getByTitle(c *gin.Context, title string) {
 	books, err := db.SearchByTitle(title)
 	if err != nil {
 		errorResponse(c, http.StatusInternalServerError, err)

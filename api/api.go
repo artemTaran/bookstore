@@ -11,23 +11,11 @@ import (
 func InitRouter() {
 	router := gin.Default()
 
-	router.GET("/api/books", func(c *gin.Context) {
-		c.Request.URL.Path = "/api/books/10"
-		router.HandleContext(c)
-	})
-	router.GET("/api/books/:quantity", getBooks)
-	router.GET("/api/books/byid/:id", getBookById)
 	router.POST("/api/books", addBook)
-	router.GET("/api/books/search/:title", searchByTitle)
+	router.GET("/api/books", getBooks)
 
-	router.GET("/api/authors", func(c *gin.Context) {
-		c.Request.URL.Path = "/api/authors/10"
-		router.HandleContext(c)
-	})
-	router.GET("/api/authors/:quantity", getAuthors)
-	router.GET("/api/authors/byid/:id", getAuthorById)
+	router.GET("/api/authors", getAuthors)
 	router.POST("/api/authors", addAuthor)
-	router.GET("/api/authors/search/:flName", searchByFLName)
 
 	host, port := getEnvV()
 	address := fmt.Sprintf("%s:%s", host, port)
