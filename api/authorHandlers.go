@@ -13,13 +13,9 @@ import (
 
 func getAuthors(c *gin.Context) {
 	quantityParam := c.Query("quantity")
-	idParam := c.Query("id")
 	fullNameParam := c.Query("fullName")
 
-	if idParam != "" {
-		getAuthorById(c, idParam)
-		return
-	} else if fullNameParam != "" {
+	if fullNameParam != "" {
 		getByFullName(c, fullNameParam)
 		return
 	}
@@ -52,11 +48,12 @@ func getListAuthors(c *gin.Context, quantityStr string) {
 	c.JSON(http.StatusOK, authorsResponse)
 }
 
-func getAuthorById(c *gin.Context, idStr string) {
+func getAuthorById(c *gin.Context) {
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id field must be a number"))
+		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id param must be a number"))
 		return
 	}
 	author, err := db.GetAuthorById(id)

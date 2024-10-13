@@ -17,17 +17,16 @@ func InitDb() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		logger.Fatal(err)
-
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s", cfg.Host, cfg.UserName, cfg.Password, cfg.DBName, cfg.Port, cfg.SSLMode)
 
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Error(err)
+		logger.Fatal(err)
 	}
 	if err = db.AutoMigrate(&dataModels.Book{}, &dataModels.Author{}); err != nil {
-		logger.Error(err)
+		logger.Fatal(err)
 	}
 }
 

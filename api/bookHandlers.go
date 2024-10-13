@@ -13,13 +13,9 @@ import (
 
 func getBooks(c *gin.Context) {
 	quantityParam := c.Query("quantity")
-	idParam := c.Query("id")
 	titleParam := c.Query("title")
 
-	if idParam != "" {
-		getBookById(c, idParam)
-		return
-	} else if titleParam != "" {
+	if titleParam != "" {
 		getByTitle(c, titleParam)
 		return
 	}
@@ -73,10 +69,12 @@ func getListBooks(c *gin.Context, quantityStr string) {
 	c.JSON(http.StatusOK, booksResponse)
 }
 
-func getBookById(c *gin.Context, idStr string) {
+func getBookById(c *gin.Context) {
+	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id field must be a number"))
+		fmt.Println(err)
+		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id param must be a number"))
 		return
 	}
 	book, err := db.GetBookById(id)

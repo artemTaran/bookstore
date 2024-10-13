@@ -13,9 +13,11 @@ func InitRouter() {
 
 	router.POST("/api/books", addBook)
 	router.GET("/api/books", getBooks)
+	router.GET("/api/books/:id", getBookById)
 
-	router.GET("/api/authors", getAuthors)
 	router.POST("/api/authors", addAuthor)
+	router.GET("/api/authors", getAuthors)
+	router.GET("/api/authors/:id", getAuthorById)
 
 	host, port := getEnvV()
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -32,6 +34,7 @@ func InitRouter() {
 func getEnvV() (host, port string) {
 	host = os.Getenv("HTTP_HOST")
 	port = os.Getenv("HTTP_PORT")
+
 	if host == "" {
 		logger.Fatal(fmt.Errorf("HTTP_HOST is not set"))
 		return
