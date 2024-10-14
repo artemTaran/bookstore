@@ -8,7 +8,6 @@ import (
 	"shop/config"
 	"shop/dataModels"
 	"shop/logger"
-	"strings"
 )
 
 var db *gorm.DB
@@ -38,14 +37,7 @@ func AddBook(newBook dataModels.Book) (err error) {
 		}
 	}
 
-	if err = db.Create(&newBook).Error; err != nil {
-		if strings.Contains(err.Error(), "23505") {
-			return fmt.Errorf("uniqueness Error: ISBN already exists")
-		} else {
-			return err
-		}
-	}
-	return err
+	return db.Create(&newBook).Error
 }
 
 func GetBooks(quantity int) (books []dataModels.Book, err error) {
@@ -77,22 +69,15 @@ func GetAuthorById(id int) (author dataModels.Author, err error) {
 	return author, err
 }
 
-func AddAuthor(newAuthor dataModels.Author) (msg string, err error) {
+func AddAuthor(newAuthor dataModels.Author) (err error) {
 	err = db.Where("first_name = ? AND last_name = ?", newAuthor.FirstName, newAuthor.LastName).First(&dataModels.Author{}).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			if err = db.Create(&newAuthor).Error; err != nil {
-				return msg, err
-			}
-			msg = "author added successfully"
-			return msg, nil
-		} else {
-			return msg, err
+			return db.Create(&newAuthor).Error
 		}
+		return err
 	}
-	msg = "author already exists"
-
-	return msg, nil
+	return errors.New("author already exists")
 }
 
 func SearchByFLName(flName string) (authors []dataModels.Author, err error) {

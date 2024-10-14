@@ -38,7 +38,7 @@ func getListAuthors(c *gin.Context, quantityStr string) {
 	}
 	authors, err := db.GetAuthors(quantity)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, errors.New("error getting list of authors from database, please try again later"))
+		errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
 		logger.Error(err)
 		return
 	}
@@ -84,19 +84,25 @@ func addAuthor(c *gin.Context) {
 		return
 	}
 
-	msg, err := db.AddAuthor(newAuthor)
-	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, errors.New("There is an error on the server"))
-		return
+	if err := db.AddAuthor(newAuthor); err != nil {
+		if err.Error() == "author already exists" {
+			errorResponse(c, http.StatusConflict, errors.New("author already exist"))
+			return
+		} else {
+			errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
+			logger.Error(err)
+			return
+		}
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"message": "author added successfully!"})
 	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": msg})
 }
 
 func getByFullName(c *gin.Context, fullName string) {
 	authors, err := db.SearchByFLName(fullName)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
+		logger.Error(err)
 		return
 	}
 	if len(authors) == 0 {

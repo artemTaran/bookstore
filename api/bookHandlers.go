@@ -9,6 +9,7 @@ import (
 	"shop/db"
 	"shop/logger"
 	"strconv"
+	"strings"
 )
 
 func getBooks(c *gin.Context) {
@@ -37,10 +38,15 @@ func addBook(c *gin.Context) {
 		return
 	}
 	if err := db.AddBook(newBook); err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
-		return
+		if strings.Contains(err.Error(), "23505") {
+			errorResponse(c, http.StatusConflict, errors.New("uniqueness Error: ISBN already exists"))
+			return
+		} else {
+			errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
+			logger.Error(err)
+			return
+		}
 	}
-
 	c.JSON(http.StatusCreated, gin.H{"message": "book added successfully!"})
 }
 
@@ -59,7 +65,7 @@ func getListBooks(c *gin.Context, quantityStr string) {
 	}
 	books, err := db.GetBooks(quantity)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, errors.New("error getting list of books from database, try again later"))
+		errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
 		logger.Error(err)
 		return
 	}
@@ -73,7 +79,6 @@ func getBookById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		fmt.Println(err)
 		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id param must be a number"))
 		return
 	}
@@ -95,9 +100,10 @@ func getBookById(c *gin.Context) {
 func getByTitle(c *gin.Context, title string) {
 	books, err := db.SearchByTitle(title)
 	if err != nil {
-		errorResponse(c, http.StatusInternalServerError, err)
+		errorResponse(c, http.StatusInternalServerError, errors.New("internal server error, please try making a request later"))
+		logger.Error(err)
+		return
 	}
-
 	if len(books) == 0 {
 		errorResponse(c, http.StatusNotFound, fmt.Errorf("record not found"))
 		return
@@ -110,7 +116,6 @@ func getByTitle(c *gin.Context, title string) {
 
 func errorResponse(c *gin.Context, statusCode int, err error) {
 	c.JSON(statusCode, gin.H{"error:": err.Error()})
-	logger.Error(err)
 }
 
 func createResponseBooks(books []dataModels.Book) []dataModels.BookResponse {
