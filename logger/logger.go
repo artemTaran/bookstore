@@ -39,6 +39,6 @@ func Fatal(err error, fields ...zap.Field) {
 func Sync() {
 	err := logger.Sync()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -56,11 +55,11 @@ func getListBooks(c *gin.Context, quantityStr string) {
 	}
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity must be number"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the quantity must be number"))
 		return
 	}
 	if quantity <= 0 {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity should not be negative"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the quantity should not be negative"))
 		return
 	}
 	books, err := db.GetBooks(quantity)
@@ -79,16 +78,16 @@ func getBookById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id param must be a number"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the id param must be a number"))
 		return
 	}
 	book, err := db.GetBookById(id)
 	if err != nil {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("book not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("book not found"))
 		return
 	}
 	if book.ISBN == "" && book.Title == "" {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("book not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("book not found"))
 		return
 	}
 
@@ -105,7 +104,7 @@ func getByTitle(c *gin.Context, title string) {
 		return
 	}
 	if len(books) == 0 {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("record not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("record not found"))
 		return
 	}
 

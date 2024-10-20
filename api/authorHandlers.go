@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
@@ -29,11 +28,11 @@ func getListAuthors(c *gin.Context, quantityStr string) {
 	}
 	quantity, err := strconv.Atoi(quantityStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity must be number"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the quantity must be number"))
 		return
 	}
 	if quantity <= 0 {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the quantity should not be negative"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the quantity should not be negative"))
 		return
 	}
 	authors, err := db.GetAuthors(quantity)
@@ -53,16 +52,16 @@ func getAuthorById(c *gin.Context) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errorResponse(c, http.StatusBadRequest, fmt.Errorf("the id param must be a number"))
+		errorResponse(c, http.StatusBadRequest, errors.New("the id param must be a number"))
 		return
 	}
 	author, err := db.GetAuthorById(id)
 	if err != nil {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("author not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("author not found"))
 		return
 	}
 	if author.FirstName == "" && author.LastName == "" {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("author not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("author not found"))
 		return
 	}
 
@@ -106,7 +105,7 @@ func getByFullName(c *gin.Context, fullName string) {
 		return
 	}
 	if len(authors) == 0 {
-		errorResponse(c, http.StatusNotFound, fmt.Errorf("record not found"))
+		errorResponse(c, http.StatusNotFound, errors.New("record not found"))
 		return
 	}
 
